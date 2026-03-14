@@ -1,15 +1,18 @@
 package catalog
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/mytheresa/go-hiring-challenge/app/api"
 	"github.com/mytheresa/go-hiring-challenge/models"
+	"gorm.io/gorm"
 )
 
 type ProductRepository interface {
 	GetAllProducts(filter models.ProductFilter) ([]models.Product, int64, error)
+	GetProductDetailByCode(code string) (models.Product, error)
 }
 type CatalogHandler struct {
 	repo ProductRepository
@@ -85,4 +88,47 @@ func (h *CatalogHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		Offset:   offset,
 		Limit:    limit,
 	})
+}
+
+func (h *CatalogHandler) HandleGetByCode(w http.ResponseWriter, r *http.Request) {
+	code := r.PathValue("code")
+	if code == "" {
+		api.ErrorResponse(w, http.StatusBadRequest, "invalid code")
+		return
+	}
+
+	res, err := h.repo.GetProductDetailByCode(code)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			api.ErrorResponse(w, http.StatusNotFound, "product not found")
+			return
+		}
+		api.ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// Map response
+	variants := make([]VariantResponse, len(res.Variants))
+	for i, variant := range res.Variants {
+		price := variant.Price.InexactFloat64()
+		if variant.Price.IsZero() {
+			price = res.Price.InexactFloat64()
+		}
+		variants[i] = VariantResponse{
+			Name:  variant.Name,
+			SKU:   variant.SKU,
+			Price: price,
+		}
+	}
+	productDetail := ProductDetailResponse{
+		Code:  res.Code,
+		Price: res.Price.InexactFloat64(),
+		Category: CategoryResponse{
+			Code: res.Category.Code,
+			Name: res.Category.Name,
+		},
+		Variants: variants,
+	}
+
+	api.OKResponse(w, productDetail)
 }

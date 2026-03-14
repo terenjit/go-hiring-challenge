@@ -17,3 +17,16 @@ type ProductsResponse struct {
 	Offset   int               `json:"offset"`
 	Limit    int               `json:"limit"`
 }
+
+type ProductDetailResponse struct {
+	Code     string            `json:"code"`
+	Price    float64           `json:"price"`
+	Category CategoryResponse  `json:"category"`
+	Variants []VariantResponse `json:"variants"`
+}
+
+type VariantResponse struct {
+	Name  string  `json:"name"`
+	SKU   string  `json:"sku"`
+	Price float64 `json:"price"`
+}

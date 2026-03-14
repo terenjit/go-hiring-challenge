@@ -39,3 +39,11 @@ func (r *ProductsRepository) GetAllProducts(filter ProductFilter) ([]Product, in
 
 	return products, total, nil
 }
+
+func (r *ProductsRepository) GetProductDetailByCode(code string) (Product, error) {
+	var product Product
+	if err := r.db.Debug().Preload("Category").Preload("Variants").Where("code = ?", code).First(&product).Error; err != nil {
+		return Product{}, err
+	}
+	return product, nil
+}
