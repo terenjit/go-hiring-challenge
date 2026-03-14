@@ -14,10 +14,28 @@ func NewProductsRepository(db *gorm.DB) *ProductsRepository {
 	}
 }
 
-func (r *ProductsRepository) GetAllProducts() ([]Product, error) {
+func (r *ProductsRepository) GetAllProducts(filter ProductFilter) ([]Product, int64, error) {
 	var products []Product
-	if err := r.db.Preload("Variants").Find(&products).Error; err != nil {
-		return nil, err
+	var total int64
+
+	query := r.db.Model(&Product{})
+
+	if filter.Category != "" {
+		query = query.Joins("JOIN categories ON categories.id = products.category_id").
+			Where("categories.code = ?", filter.Category)
 	}
-	return products, nil
+
+	if filter.PriceLessThan > 0 {
+		query = query.Where("products.price < ?", filter.PriceLessThan)
+	}
+	query.Count(&total)
+
+	if err := query.Debug().Preload("Category").
+		Offset(filter.Offset).
+		Limit(filter.Limit).
+		Find(&products).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return products, total, nil
 }
