@@ -31,8 +31,8 @@ func (r *ProductsRepository) GetAllProducts(filter ProductFilter) ([]Product, in
 	query.Count(&total)
 
 	if err := query.Debug().Preload("Category").
-		Offset(filter.Offset).
-		Limit(filter.Limit).
+		Offset(filter.Page.Offset).
+		Limit(filter.Page.Limit).
 		Find(&products).Error; err != nil {
 		return nil, 0, err
 	}

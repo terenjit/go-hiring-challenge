@@ -47,8 +47,10 @@ func (h *CatalogHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filter := models.ProductFilter{
-		Offset:        offset,
-		Limit:         limit,
+		Page: models.PageFilter{
+			Offset: offset,
+			Limit:  limit,
+		},
 		Category:      r.URL.Query().Get("category"),
 		PriceLessThan: 0,
 	}
