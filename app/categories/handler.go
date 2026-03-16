@@ -40,7 +40,7 @@ func (h *CategoryHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return the products as a JSON response
-	api.OKResponse(w, categories)
+	api.OKResponse(w, CategoriesResponse{Categories: categories})
 }
 func (h *CategoryHandler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	var req CreateCategoryRequest

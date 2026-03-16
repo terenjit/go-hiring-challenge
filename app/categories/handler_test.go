@@ -49,10 +49,10 @@ func TestHandleGet(t *testing.T) {
 		handler.HandleGet(rec, req)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.JSONEq(t, `[
+		assert.JSONEq(t, `{"categories": [
 			{"code": "clothing", "name": "Clothing"},
 			{"code": "shoes", "name": "Shoes"}
-		]`, rec.Body.String())
+		]}`, rec.Body.String())
 	})
 
 	t.Run("error from db", func(t *testing.T) {
@@ -80,7 +80,7 @@ func TestHandleGet(t *testing.T) {
 		handler.HandleGet(rec, req)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.JSONEq(t, `[]`, rec.Body.String())
+		assert.JSONEq(t, `{"categories": []}`, rec.Body.String())
 	})
 }
 
