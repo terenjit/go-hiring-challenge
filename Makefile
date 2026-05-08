@@ -10,6 +10,9 @@ run ::
 test ::
 	@go test -v -count=1 -race ./... -coverprofile=coverage.out -covermode=atomic
 
+test-integration ::
+	@go test -v -count=1 -race -tags integration ./models/... -coverprofile=coverage-integration.out -covermode=atomic
+
 docker-up ::
 	docker compose up -d
 

@@ -40,3 +40,22 @@ func TestErrorResponse(t *testing.T) {
 		assert.JSONEq(t, expected, recorder.Body.String(), "Response body does not match expected")
 	})
 }
+
+func TestCreatedResponse(t *testing.T) {
+	type sampleResponse struct {
+		Message string `json:"message"`
+	}
+
+	sample := sampleResponse{Message: "Created"}
+
+	t.Run("successful http201 json response", func(t *testing.T) {
+		recorder := httptest.NewRecorder()
+		CreatedResponse(recorder, sample)
+
+		assert.Equal(t, http.StatusCreated, recorder.Code, "Expected status code 201 Created")
+		assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"), "Expected Content-Type to be application/json")
+
+		expected := `{"message":"Created"}`
+		assert.JSONEq(t, expected, recorder.Body.String(), "Response body does not match expected")
+	})
+}
